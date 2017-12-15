@@ -1,0 +1,11 @@
+# Compiled files and Eclipse IDE configuration files
+/src/.metadata
+/src/.recommenders
+/src/RemoteSystemsTempFiles
+/src/Servers
+/src/TestesUnitarios/target
+/src/TestesUnitarios/.settings
+*.classpath
+*.project
+*.tern-project
+**/rebel.xml

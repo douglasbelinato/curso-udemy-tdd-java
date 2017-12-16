@@ -17,6 +17,8 @@ import org.junit.rules.ExpectedException;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
+import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
+import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
@@ -49,7 +51,7 @@ public class LocacaoServiceTest {
 	}
 	
 	// Tratando exceções - Modo elegante
-	@Test(expected = Exception.class)	 
+	@Test(expected = FilmeSemEstoqueException.class)	 
 	public void testeLocacaoFilmeSemEstoque() throws Exception {
 		// Cenário
 		Usuario usuario = new Usuario("Douglas");
@@ -76,18 +78,49 @@ public class LocacaoServiceTest {
 	}
 	
 	// Tratando exceções - Modo com @Rule ExpectedException
-		@Test
-		public void testeLocacaoFilmeSemEstoque3() throws Exception {
-			// Cenário
-			Usuario usuario = new Usuario("Douglas");
-			Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
-			
-			expectedException.expect(Exception.class);
-			expectedException.expectMessage("Filme sem estoque");
-			
-			// Ação
+	@Test
+	public void testeLocacaoFilmeSemEstoque3() throws Exception {
+		// Cenário
+		Usuario usuario = new Usuario("Douglas");
+		Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
+		
+		expectedException.expect(Exception.class);
+		expectedException.expectMessage("Filme sem estoque");
+		
+		// Ação
+		new LocacaoService().alugarFilme(usuario, filme);
+		
+	}
+	
+	// usando a forma robusta
+	@Test
+	public void testeLocacaoUsuarioVazio() throws FilmeSemEstoqueException {		
+		// Cenário
+		Usuario usuario = null;
+		Filme filme = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
+		
+		// Ação
+		try {
 			new LocacaoService().alugarFilme(usuario, filme);
-			
-		}
+			Assert.fail();
+		} catch (LocadoraException e) {
+			assertThat(e.getMessage(), is("Usuário vazio"));
+		}		
+	}
+	
+	// Usando modo com @Rule ExpectedException
+	@Test
+	public void testeLocacaoFileVazio() throws FilmeSemEstoqueException, LocadoraException {
+		// Cenário
+		Usuario usuario = new Usuario("Douglas");
+		Filme filme = null;
+		
+		expectedException.expect(LocadoraException.class);
+		expectedException.expectMessage("Filme vazio");
+		
+		// Ação
+		new LocacaoService().alugarFilme(usuario, filme);
+		
+	}
 
 }

@@ -6,13 +6,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -44,14 +44,16 @@ public class LocacaoServiceTest {
 	public void testeLocacao() throws Exception {
 		// Cenário
 		Usuario usuario = new Usuario("Douglas");
-		Filme filme = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
+		
+		List<Filme> filmes = Arrays.asList(new Filme("Star Wars VII - O despertar da força", 10, 4.5),
+									       new Filme("Matrix Reloaded", 10, 4.5));
 		
 		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
 		
 		// Verificação
 		//Assert.assertEquals(4.5, locacao.getValor(), 0.01);
-		error.checkThat(locacao.getValor(), is(equalTo(4.5)));
+		error.checkThat(locacao.getValor(), is(equalTo(9.0)));
 		error.checkThat(locacao.getValor(), is(not(6.0)));
 		
 		//Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()));
@@ -66,10 +68,13 @@ public class LocacaoServiceTest {
 	public void testeLocacaoFilmeSemEstoque() throws Exception {
 		// Cenário
 		Usuario usuario = new Usuario("Douglas");
-		Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
+		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
+		
+		List<Filme> filmes = new ArrayList<>();
+		filmes.add(filme1);
 		
 		// Ação
-		locacaoService.alugarFilme(usuario, filme);		
+		locacaoService.alugarFilme(usuario, filmes);		
 	}
 	
 	// usando a forma robusta
@@ -77,11 +82,14 @@ public class LocacaoServiceTest {
 	public void testeLocacaoUsuarioVazio() throws FilmeSemEstoqueException {		
 		// Cenário
 		Usuario usuario = null;
-		Filme filme = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
+		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
+		
+		List<Filme> filmes = new ArrayList<>();
+		filmes.add(filme1);
 		
 		// Ação
 		try {
-			locacaoService.alugarFilme(usuario, filme);
+			locacaoService.alugarFilme(usuario, filmes);
 			Assert.fail();
 		} catch (LocadoraException e) {
 			assertThat(e.getMessage(), is("Usuário vazio"));
@@ -90,16 +98,34 @@ public class LocacaoServiceTest {
 	
 	// Usando modo com @Rule ExpectedException
 	@Test
-	public void testeLocacaoFileVazio() throws FilmeSemEstoqueException, LocadoraException {
+	public void testeLocacaoListaFilmesVazia() throws FilmeSemEstoqueException, LocadoraException {
 		// Cenário
 		Usuario usuario = new Usuario("Douglas");
-		Filme filme = null;
+
+		List<Filme> filmes = new ArrayList<>();
+		
+		expectedException.expect(LocadoraException.class);
+		expectedException.expectMessage("Lista de filmes vazia");
+		
+		// Ação
+		locacaoService.alugarFilme(usuario, filmes);		
+	}
+	
+	// Usando modo com @Rule ExpectedException
+	@Test
+	public void testeLocacaoFilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
+		// Cenário
+		Usuario usuario = new Usuario("Douglas");
+		Filme filme1 = null;
+		
+		List<Filme> filmes = new ArrayList<>();
+		filmes.add(filme1);
 		
 		expectedException.expect(LocadoraException.class);
 		expectedException.expectMessage("Filme vazio");
 		
 		// Ação
-		locacaoService.alugarFilme(usuario, filme);		
+		locacaoService.alugarFilme(usuario, filmes);		
 	}
 
 }

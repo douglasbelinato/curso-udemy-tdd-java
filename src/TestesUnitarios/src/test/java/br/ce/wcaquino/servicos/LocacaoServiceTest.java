@@ -8,7 +8,11 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -23,11 +27,18 @@ import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
 	
+	private LocacaoService locacaoService;
+	
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
 	
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
+	
+	@Before
+	public void setup() {
+		locacaoService = new LocacaoService();
+	}
 	
 	@Test
 	public void testeLocacao() throws Exception {
@@ -36,7 +47,7 @@ public class LocacaoServiceTest {
 		Filme filme = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
 		
 		// Ação
-		Locacao locacao = new LocacaoService().alugarFilme(usuario, filme);
+		Locacao locacao = locacaoService.alugarFilme(usuario, filme);
 		
 		// Verificação
 		//Assert.assertEquals(4.5, locacao.getValor(), 0.01);
@@ -58,38 +69,7 @@ public class LocacaoServiceTest {
 		Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
 		
 		// Ação
-		new LocacaoService().alugarFilme(usuario, filme);		
-	}
-	
-	// Tratando exceções - Modo robusto
-	@Test
-	public void testeLocacaoFilmeSemEstoque2() {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
-		
-		// Ação
-		try {
-			new LocacaoService().alugarFilme(usuario, filme);
-			Assert.fail("Deveria lançar exceção");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Filme sem estoque"));
-		}
-	}
-	
-	// Tratando exceções - Modo com @Rule ExpectedException
-	@Test
-	public void testeLocacaoFilmeSemEstoque3() throws Exception {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
-		
-		expectedException.expect(Exception.class);
-		expectedException.expectMessage("Filme sem estoque");
-		
-		// Ação
-		new LocacaoService().alugarFilme(usuario, filme);
-		
+		locacaoService.alugarFilme(usuario, filme);		
 	}
 	
 	// usando a forma robusta
@@ -101,7 +81,7 @@ public class LocacaoServiceTest {
 		
 		// Ação
 		try {
-			new LocacaoService().alugarFilme(usuario, filme);
+			locacaoService.alugarFilme(usuario, filme);
 			Assert.fail();
 		} catch (LocadoraException e) {
 			assertThat(e.getMessage(), is("Usuário vazio"));
@@ -119,8 +99,7 @@ public class LocacaoServiceTest {
 		expectedException.expectMessage("Filme vazio");
 		
 		// Ação
-		new LocacaoService().alugarFilme(usuario, filme);
-		
+		locacaoService.alugarFilme(usuario, filme);		
 	}
 
 }

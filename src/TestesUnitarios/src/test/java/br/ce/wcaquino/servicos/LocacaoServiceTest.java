@@ -4,10 +4,11 @@ import static br.ce.wcaquino.utils.DataUtils.isMesmaData;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -239,6 +240,23 @@ public class LocacaoServiceTest {
 		
 		// Verificação
 		assertThat(locacao.getValor(), is(9.0));
+	}
+	
+	@Test
+	public void deveDevolverNaSegundaAoAlugarNoSabado() throws FilmeSemEstoqueException, LocadoraException {
+		// Cenário
+		Usuario usuario = new Usuario("Douglas");
+		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
+		
+		List<Filme> filmes = new ArrayList<>();
+		filmes.add(filme1);
+		
+		// Ação
+		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
+		
+		// Verificação
+		boolean ehSegunda = DataUtils.verificarDiaSemana(locacao.getDataRetorno(), Calendar.MONDAY);
+		assertTrue(ehSegunda);
 	}
 
 }

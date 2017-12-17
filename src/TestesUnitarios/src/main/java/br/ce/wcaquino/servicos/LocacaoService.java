@@ -15,6 +15,7 @@ public class LocacaoService {
 	
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocadoraException {
 		Double valorLocacao = 0d;
+		double percentualDesconto = 0d;
 		
 		if (usuario == null) {
 			throw new LocadoraException("Usuário vazio");
@@ -22,6 +23,21 @@ public class LocacaoService {
 		
 		if (filmes == null || filmes.isEmpty()) {
 			throw new LocadoraException("Lista de filmes vazia");
+		}
+		
+		switch (filmes.size()) {
+		case 3:
+			percentualDesconto = 0.25;
+			break;
+		case 4:
+			percentualDesconto = 0.50;
+			break;
+		case 5:
+			percentualDesconto = 0.75;
+			break;
+		case 6:
+			percentualDesconto = 1d;
+			break;
 		}
 		
 		for (Filme filme : filmes) {
@@ -35,6 +51,10 @@ public class LocacaoService {
 			
 			valorLocacao += filme.getPrecoLocacao();
 		}
+		
+		// Obtém o valor do último filme, aplica desconto e tira o valor da soma total do valor locação
+		Filme ultimoFilme = filmes.get(filmes.size() - 1);
+		valorLocacao -= (ultimoFilme.getPrecoLocacao() * percentualDesconto);
 		
 		Locacao locacao = new Locacao();
 		locacao.setFilmes(filmes);

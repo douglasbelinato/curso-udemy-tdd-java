@@ -16,7 +16,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -135,116 +134,6 @@ public class LocacaoServiceTest {
 		
 		// Ação
 		locacaoService.alugarFilme(usuario, filmes);		
-	}
-	
-	@Test
-	public void devePagar75PercNoFilme3() throws FilmeSemEstoqueException, LocadoraException {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
-		Filme filme2 = new Filme("Star Trek", 5, 4.0);
-		Filme filme3 = new Filme("Star Wars VI - O retorno de Jedi", 10, 4.0);
-		
-		List<Filme> filmes = new ArrayList<>();
-		filmes.add(filme1);
-		filmes.add(filme2);
-		filmes.add(filme3);
-		
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		assertThat(locacao.getValor(), is(12.0));
-	}
-	
-	@Test
-	public void devePagar50PercNoFilme4() throws FilmeSemEstoqueException, LocadoraException {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
-		Filme filme2 = new Filme("Star Trek", 5, 4.0);
-		Filme filme3 = new Filme("Star Wars VI - O retorno de Jedi", 10, 4.0);
-		Filme filme4 = new Filme("Matrix Reloaded", 10, 6.0);
-		
-		List<Filme> filmes = new ArrayList<>();
-		filmes.add(filme1);
-		filmes.add(filme2);
-		filmes.add(filme3);
-		filmes.add(filme4);
-		
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		assertThat(locacao.getValor(), is(16.0));
-	}
-	
-	@Test
-	public void devePagar25PercNoFilme5() throws FilmeSemEstoqueException, LocadoraException {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
-		Filme filme2 = new Filme("Star Trek", 5, 4.0);
-		Filme filme3 = new Filme("Star Wars VI - O retorno de Jedi", 10, 4.0);
-		Filme filme4 = new Filme("Matrix Reloaded", 10, 6.0);
-		Filme filme5 = new Filme("Matrix Revolutions", 10, 6.0);
-		
-		List<Filme> filmes = new ArrayList<>();
-		filmes.add(filme1);
-		filmes.add(filme2);
-		filmes.add(filme3);
-		filmes.add(filme4);
-		filmes.add(filme5);
-		
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		assertThat(locacao.getValor(), is(20.5));
-	}
-	
-	@Test
-	public void devePagar0PercNoFilme6() throws FilmeSemEstoqueException, LocadoraException {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
-		Filme filme2 = new Filme("Star Trek", 5, 4.0);
-		Filme filme3 = new Filme("Star Wars VI - O retorno de Jedi", 10, 4.0);
-		Filme filme4 = new Filme("Matrix Reloaded", 10, 6.0);
-		Filme filme5 = new Filme("Matrix Revolutions", 10, 6.0);
-		Filme filme6 = new Filme("Avengers", 10, 4.0);
-		
-		List<Filme> filmes = new ArrayList<>();
-		filmes.add(filme1);
-		filmes.add(filme2);
-		filmes.add(filme3);
-		filmes.add(filme4);
-		filmes.add(filme5);
-		filmes.add(filme6);
-		
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		assertThat(locacao.getValor(), is(25.0));
-	}
-	
-	@Test
-	public void devePagar100PercNoFilme2() throws FilmeSemEstoqueException, LocadoraException {
-		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
-		Filme filme2 = new Filme("Star Trek", 5, 4.0);
-		
-		List<Filme> filmes = new ArrayList<>();
-		filmes.add(filme1);
-		filmes.add(filme2);
-		
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		assertThat(locacao.getValor(), is(9.0));
 	}
 	
 	@Test

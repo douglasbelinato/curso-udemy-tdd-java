@@ -1,5 +1,6 @@
 package br.ce.wcaquino.servicos;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,6 +22,7 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 
 // Recurso conhecido como Data Driven Design
+// @RunWith --> Eu informo ao JUnit (Test Runner) que a execução será feita de modo diferente 
 @RunWith(Parameterized.class)
 public class CalculoValorLocacaoTest {
 	
@@ -69,12 +71,7 @@ public class CalculoValorLocacaoTest {
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
 		
 		// Verificação
-		assertThat(locacao.getValor(), is(valorLocacao));
-	}
-	
-	@Test
-	public void print() {
-		System.out.println(valorLocacao);
+		assertThat(locacao.getValor(), is(equalTo(valorLocacao)));
 	}
 
 }

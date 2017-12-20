@@ -3,8 +3,10 @@ package br.ce.wcaquino.servicos;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDias;
+import static br.ce.wcaquino.builder.FilmeBuilder.umFilme;
+import static br.ce.wcaquino.builder.FilmeBuilder.umFilmeSemEstoque;
+import static br.ce.wcaquino.builder.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiEm;
-import static br.ce.wcaquino.utils.DataUtils.isMesmaData;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -24,12 +26,12 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
+import br.ce.wcaquino.builder.FilmeBuilder;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
-import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
@@ -52,17 +54,16 @@ public class LocacaoServiceTest {
 		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 		
 		// Cenário
-		Usuario usuario = new Usuario("Douglas");
+		Usuario usuario = umUsuario().agora();
 		
-		List<Filme> filmes = Arrays.asList(new Filme("Star Wars VII - O despertar da força", 10, 4.5),
-									       new Filme("Matrix Reloaded", 10, 4.5));
+		List<Filme> filmes = Arrays.asList(umFilme().comValor(5.0).agora());
 		
 		// Ação
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
 		
 		// Verificação
 		//Assert.assertEquals(4.5, locacao.getValor(), 0.01);
-		error.checkThat(locacao.getValor(), is(equalTo(9.0)));
+		error.checkThat(locacao.getValor(), is(equalTo(5.0)));
 		error.checkThat(locacao.getValor(), is(not(6.0)));
 		
 		//Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()));
@@ -78,8 +79,8 @@ public class LocacaoServiceTest {
 	@Test(expected = FilmeSemEstoqueException.class)	 
 	public void naoDeveAlugarFilmeSemEstoque() throws Exception {
 		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 0, 4.5);
+		Usuario usuario = umUsuario().agora();
+		Filme filme1 = umFilmeSemEstoque().agora();
 		
 		List<Filme> filmes = new ArrayList<>();
 		filmes.add(filme1);
@@ -93,7 +94,7 @@ public class LocacaoServiceTest {
 	public void naoDeveAlugarFilmeSemUsuario() throws FilmeSemEstoqueException {		
 		// Cenário
 		Usuario usuario = null;
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 4.5);
+		Filme filme1 = umFilme().agora();
 		
 		List<Filme> filmes = new ArrayList<>();
 		filmes.add(filme1);
@@ -112,7 +113,7 @@ public class LocacaoServiceTest {
 	@Test
 	public void naoDeveAlugarFilmeSemListaDeFilmes() throws FilmeSemEstoqueException, LocadoraException {
 		// Cenário
-		Usuario usuario = new Usuario("Douglas");
+		Usuario usuario = umUsuario().agora();
 
 		List<Filme> filmes = new ArrayList<>();
 		
@@ -121,14 +122,14 @@ public class LocacaoServiceTest {
 		expectedException.expectMessage("Lista de filmes vazia");
 		
 		// Ação
-		locacaoService.alugarFilme(usuario, filmes);		
+		locacaoService.alugarFilme(usuario, filmes);
 	}
 	
 	// Usando modo com @Rule ExpectedException
 	@Test
 	public void naoDeveAlugarFilmeSemFilme() throws FilmeSemEstoqueException, LocadoraException {
 		// Cenário
-		Usuario usuario = new Usuario("Douglas");
+		Usuario usuario = umUsuario().agora();
 		Filme filme1 = null;
 		
 		List<Filme> filmes = new ArrayList<>();
@@ -147,8 +148,8 @@ public class LocacaoServiceTest {
 		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 		
 		// Cenário
-		Usuario usuario = new Usuario("Douglas");
-		Filme filme1 = new Filme("Star Wars VII - O despertar da força", 10, 5.0);
+		Usuario usuario = umUsuario().agora();
+		Filme filme1 = umFilme().agora();
 		
 		List<Filme> filmes = new ArrayList<>();
 		filmes.add(filme1);

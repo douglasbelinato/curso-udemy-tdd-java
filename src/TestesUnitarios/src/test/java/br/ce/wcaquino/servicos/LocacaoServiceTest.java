@@ -1,12 +1,11 @@
 package br.ce.wcaquino.servicos;
 
-import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
-import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
-import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDias;
 import static br.ce.wcaquino.builder.FilmeBuilder.umFilme;
 import static br.ce.wcaquino.builder.FilmeBuilder.umFilmeSemEstoque;
 import static br.ce.wcaquino.builder.UsuarioBuilder.umUsuario;
-import static br.ce.wcaquino.matchers.MatchersProprios.caiEm;
+import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDias;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -25,9 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
-import br.ce.wcaquino.builder.FilmeBuilder;
-import br.ce.wcaquino.daos.LocacaoDAOFake;
+import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -49,7 +48,8 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		locacaoService = new LocacaoService();
-		locacaoService.setLocacaoDao(new LocacaoDAOFake());
+		LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
+		locacaoService.setLocacaoDao(dao);
 	}
 	
 	@Test

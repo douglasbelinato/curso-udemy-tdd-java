@@ -7,11 +7,13 @@ import static br.ce.wcaquino.builder.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDias;
-import static br.ce.wcaquino.utils.DataUtils.obterDataComDiferencaDias;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +32,6 @@ import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import br.ce.wcaquino.builder.LocacaoBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -189,7 +190,7 @@ public class LocacaoServiceTest {
 		Usuario usuario2 = umUsuario().comNome("Douglas").agora();
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
-		when(spcService.possuiNegatividade(usuario)).thenReturn(true);
+		when(spcService.possuiNegatividade(Mockito.any(Usuario.class))).thenReturn(true);
 					
 		// ação
 		try {
@@ -210,11 +211,13 @@ public class LocacaoServiceTest {
 		// cenário
 		Usuario usuario = umUsuario().agora();
 		Usuario usuario2 = umUsuario().comNome("Douglas").agora();
+		Usuario usuario3 = umUsuario().comNome("Usuário em dia").agora();
+		Usuario usuario4 = umUsuario().comNome("Outro atrasado").agora();
 		List<Locacao> locacoes = Arrays.asList(
-				umLocacao()
-					.comUsuario(usuario)
-					.comDataRetorno(obterDataComDiferencaDias(-2))
-					.agora());
+				umLocacao().atrasado().comUsuario(usuario).agora(),
+				umLocacao().comUsuario(usuario3).agora(),
+				umLocacao().atrasado().comUsuario(usuario4).agora(),
+				umLocacao().atrasado().comUsuario(usuario4).agora());
 		
 		when(dao.obterLocacoesPendentes()).thenReturn(locacoes);
 		
@@ -222,8 +225,14 @@ public class LocacaoServiceTest {
 		locacaoService.notificarAtrasos();
 		
 		// verificação
+		verify(emailService, times(3)).notificarAtraso(Mockito.any(Usuario.class));
+		
 		verify(emailService).notificarAtraso(usuario);
+		verify(emailService, atLeastOnce()).notificarAtraso(usuario4);
+		verify(emailService, never()).notificarAtraso(usuario3);
 		//verify(emailService).notificarAtraso(usuario2); // para checar se não ocorre falso positivo
+		
+		Mockito.verifyNoMoreInteractions(emailService);
 	}
 
 }

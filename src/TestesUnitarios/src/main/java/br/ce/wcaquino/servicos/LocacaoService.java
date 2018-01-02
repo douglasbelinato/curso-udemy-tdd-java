@@ -100,19 +100,4 @@ public class LocacaoService {
 		}
 	}
 
-	// Faz a injeção da dependência
-	public void setLocacaoDao(LocacaoDAO dao) {
-		this.dao = dao;
-	}
-
-	// Faz a injeção da dependência
-	public void setSpcService(SPCService spcService) {
-		this.spcService = spcService;
-	}
-
-	// Faz a injeção da dependência
-	public void setEmailService(EmailService emailService) {
-		this.emailService = emailService;
-	}
-
 }

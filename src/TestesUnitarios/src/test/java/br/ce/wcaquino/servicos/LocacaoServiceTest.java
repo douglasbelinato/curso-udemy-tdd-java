@@ -20,11 +20,9 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,8 +46,8 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
-@RunWith(PowerMockRunner.class) // Informa o JUnit que o runner de exeução será gerenciado pelo PowerMock
-@PrepareForTest({LocacaoService.class, DataUtils.class})
+@RunWith(PowerMockRunner.class) // Informa o JUnit que o runner de execução será gerenciado pelo PowerMock
+@PrepareForTest({LocacaoService.class})
 public class LocacaoServiceTest {
 	
 	@InjectMocks
@@ -85,7 +83,13 @@ public class LocacaoServiceTest {
 		
 		List<Filme> filmes = Arrays.asList(umFilme().comValor(5.0).agora());
 		
-		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(28, 4, 2017)); // data que é um sábado
+		//PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(28, 4, 2017)); // data que é um sábado
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_MONTH, 28);
+		cal.set(Calendar.MONTH, Calendar.APRIL);
+		cal.set(Calendar.YEAR, 2017);
+		PowerMockito.mockStatic(Calendar.class);
+		PowerMockito.when(Calendar.getInstance()).thenReturn(cal);
 		
 		// Ação
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -97,11 +101,13 @@ public class LocacaoServiceTest {
 		
 		//Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()));
 		//error.checkThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
-		error.checkThat(locacao.getDataLocacao(), ehHoje());
+		//error.checkThat(locacao.getDataLocacao(), ehHoje());
 		
 		// Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)));
 		//error.checkThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
-		error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDias(1));
+		//error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDias(1));
+		error.checkThat(DataUtils.isMesmaData(locacao.getDataLocacao(), DataUtils.obterData(28, 4, 2017)), is(true));
+		error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterData(29, 4, 2017)), is(true));
 	}
 	
 	// Tratando exceções - Modo elegante
@@ -184,7 +190,14 @@ public class LocacaoServiceTest {
 		List<Filme> filmes = new ArrayList<>();
 		filmes.add(filme1);
 		
-		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(29, 4, 2017)); // data que é um sábado
+		// data que é um sábado
+		//PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(29, 4, 2017));
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_MONTH, 29);
+		cal.set(Calendar.MONTH, Calendar.APRIL);
+		cal.set(Calendar.YEAR, 2017);
+		PowerMockito.mockStatic(Calendar.class);
+		PowerMockito.when(Calendar.getInstance()).thenReturn(cal);
 		
 		// Ação
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -194,14 +207,18 @@ public class LocacaoServiceTest {
 		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
 		
 		// verifica qts vezes foi criada uma instância de Date
-		PowerMockito.verifyNew(Date.class, Mockito.times(2)).withNoArguments();
+		//PowerMockito.verifyNew(Date.class, Mockito.times(2)).withNoArguments();
+		
+		// Verificação de chamadas de métodos estáticos
+		PowerMockito.verifyStatic(Mockito.times(2));
+		Calendar.getInstance();
 	}
 	
 	@Test
 	public void naoDeveAlugarFilmeParaNegativadoSPC() throws Exception {
 		// cenário
 		Usuario usuario = umUsuario().agora();
-		Usuario usuario2 = umUsuario().comNome("Douglas").agora();
+		//Usuario usuario2 = umUsuario().comNome("Douglas").agora();
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
 		when(spcService.possuiNegatividade(Mockito.any(Usuario.class))).thenReturn(true);
@@ -224,7 +241,7 @@ public class LocacaoServiceTest {
 	public void deveEnviarEmailParaLocacoesAtrasadas() {
 		// cenário
 		Usuario usuario = umUsuario().agora();
-		Usuario usuario2 = umUsuario().comNome("Douglas").agora();
+		//Usuario usuario2 = umUsuario().comNome("Douglas").agora();
 		Usuario usuario3 = umUsuario().comNome("Usuário em dia").agora();
 		Usuario usuario4 = umUsuario().comNome("Outro atrasado").agora();
 		List<Locacao> locacoes = Arrays.asList(

@@ -37,6 +37,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
@@ -315,6 +316,21 @@ public class LocacaoServiceTest {
 		// Verificação
 		Assert.assertThat(locacao.getValor(), is(1.0));
 		PowerMockito.verifyPrivate(locacaoService).invoke("calcularValorLocacao", filmes);
+	}
+	
+	@Test
+	public void deveCalcularLocacao() throws Exception {
+		// Cenário
+		List<Filme> filmes = Arrays.asList(umFilme().agora());
+		
+		// Ação
+		// Classe Whitebox existe tanto no Mockito qto no PowerMock, porém, é
+		// a do PoweMock que permite executar o método privado de modo concreto.
+		Double valor = (Double) Whitebox.invokeMethod(locacaoService, "calcularValorLocacao", filmes);
+		
+		// Verificação
+		Assert.assertThat(valor, is(4.0));
+		
 	}
 	
 

@@ -11,9 +11,9 @@ import br.ce.wcaquino.servicos.CalculoValorLocacaoTest;
 import br.ce.wcaquino.servicos.LocacaoServiceTest;
 
 //@RunWith --> Eu informo ao JUnit (Test Runner) que a execução será feita de modo diferente
-@RunWith(Suite.class)
+//@RunWith(Suite.class)
 @SuiteClasses({
-	CalculadoraTest.class,
+	//CalculadoraTest.class,
 	CalculoValorLocacaoTest.class,
 	LocacaoServiceTest.class
 })

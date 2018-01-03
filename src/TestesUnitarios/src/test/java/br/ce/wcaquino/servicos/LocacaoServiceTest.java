@@ -17,9 +17,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Assert;
@@ -28,16 +28,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.Spy;
 
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
@@ -47,11 +43,9 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
-@RunWith(PowerMockRunner.class) // Informa o JUnit que o runner de execução será gerenciado pelo PowerMock
-@PrepareForTest({LocacaoService.class})
 public class LocacaoServiceTest {
 	
-	@InjectMocks
+	@InjectMocks @Spy
 	private LocacaoService locacaoService;
 	
 	@Mock
@@ -72,7 +66,6 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {		
 		MockitoAnnotations.initMocks(this);
-		locacaoService = PowerMockito.spy(locacaoService); // spy do powermockito
 	}
 	
 	@Test
@@ -85,13 +78,10 @@ public class LocacaoServiceTest {
 		
 		List<Filme> filmes = Arrays.asList(umFilme().comValor(5.0).agora());
 		
-		//PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(28, 4, 2017)); // data que é um sábado
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_MONTH, 28);
-		cal.set(Calendar.MONTH, Calendar.APRIL);
-		cal.set(Calendar.YEAR, 2017);
-		PowerMockito.mockStatic(Calendar.class);
-		PowerMockito.when(Calendar.getInstance()).thenReturn(cal);
+		// Contornando o uso de PowerMock para chamar métodos privados e chamadas estáticas 
+		// Altera o comportamento do método obterData() - que agora é um método protected para permitir a manipulação
+		// do new Date()
+		Mockito.doReturn(DataUtils.obterData(28, 4, 2017)).when(locacaoService).obterData();
 		
 		// Ação
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -193,27 +183,17 @@ public class LocacaoServiceTest {
 		filmes.add(filme1);
 		
 		// data que é um sábado
-		//PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(29, 4, 2017));
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_MONTH, 29);
-		cal.set(Calendar.MONTH, Calendar.APRIL);
-		cal.set(Calendar.YEAR, 2017);
-		PowerMockito.mockStatic(Calendar.class);
-		PowerMockito.when(Calendar.getInstance()).thenReturn(cal);
-		
+		// Contornando o uso de PowerMock para chamar métodos privados e chamadas estáticas 
+		// Altera o comportamento do método obterData() - que agora é um método protected para permitir a manipulação
+		// do new Date()
+		Mockito.doReturn(DataUtils.obterData(29, 4, 2017)).when(locacaoService).obterData();
+				
 		// Ação
 		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
 		
 		// Verificação
 		//assertThat(locacao.getDataRetorno(), caiEm(Calendar.SUNDAY));
 		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
-		
-		// verifica qts vezes foi criada uma instância de Date
-		//PowerMockito.verifyNew(Date.class, Mockito.times(2)).withNoArguments();
-		
-		// Verificação de chamadas de métodos estáticos
-		PowerMockito.verifyStatic(Mockito.times(2));
-		Calendar.getInstance();
 	}
 	
 	@Test
@@ -303,30 +283,20 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
-	public void deveAlugarFilmeSemCalcularValor() throws Exception {
-		// Cenário
-		Usuario usuario = umUsuario().agora();		
-		List<Filme> filmes = Arrays.asList(umFilme().agora());
-		
-		PowerMockito.doReturn(1.0).when(locacaoService, "calcularValorLocacao", filmes);
-				
-		// Ação
-		Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
-		
-		// Verificação
-		Assert.assertThat(locacao.getValor(), is(1.0));
-		PowerMockito.verifyPrivate(locacaoService).invoke("calcularValorLocacao", filmes);
-	}
-	
-	@Test
 	public void deveCalcularLocacao() throws Exception {
 		// Cenário
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
 		// Ação
-		// Classe Whitebox existe tanto no Mockito qto no PowerMock, porém, é
-		// a do PoweMock que permite executar o método privado de modo concreto.
-		Double valor = (Double) Whitebox.invokeMethod(locacaoService, "calcularValorLocacao", filmes);
+		// Utilizando a API Reflexion do Java para acessar o método privado
+		// sem o uso do PowerMock
+		// Útil quando o método privado é mto complexo e se quer dar um foco
+		// maior nele.
+		Class<LocacaoService> clazz = LocacaoService.class;
+		Method method = clazz.getDeclaredMethod("calcularValorLocacao", List.class);
+		method.setAccessible(true);
+		
+		Double valor = (Double) method.invoke(locacaoService, filmes);
 		
 		// Verificação
 		Assert.assertThat(valor, is(4.0));

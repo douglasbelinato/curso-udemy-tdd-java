@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +45,7 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
+//@RunWith(ParallelRunner.class)
 public class LocacaoServiceTest {
 	
 	@InjectMocks @Spy
@@ -66,6 +69,18 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {		
 		MockitoAnnotations.initMocks(this);
+		System.out.println("Iniciando 2...");
+		CalculadoraTest.ordem.append("2");
+	}
+	
+	@After
+	public void tearDown() {
+		System.out.println("Finalizando 2...");
+	}
+	
+	@AfterClass
+	public static void tearDownClass() {
+		System.out.println(CalculadoraTest.ordem.toString());
 	}
 	
 	@Test
@@ -286,6 +301,8 @@ public class LocacaoServiceTest {
 	public void deveCalcularLocacao() throws Exception {
 		// Cenário
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
+		
+		Thread.sleep(5000);
 		
 		// Ação
 		// Utilizando a API Reflexion do Java para acessar o método privado
